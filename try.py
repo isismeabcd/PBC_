@@ -31,8 +31,7 @@ class maketree(tk.Frame):
 		self.l_Q1 = tk.Label(self, text = '1. 是否要踢除離群值(outlier)？', font = f4)
 		self.Q1_1 = tk.Radiobutton(self, text = '是，以缺失值處理', value = 1 , font = f4)
 		self.Q1_2 = tk.Radiobutton(self, text = '否，保留離群值', value = 2, font = f4)
-		self.Q1_check = tk.Button(self, text = '檢視', bg = 'gray', fg = 'black', font = f4)
-		#, command = self.check_outlier
+		self.Q1_check = tk.Button(self, text = '檢視', bg = 'gray', fg = 'black', command = self.check_outlier, font = f4)
 
 		#第二題：缺失值
 		self.l_Q2 = tk.Label(self, text = '2. 缺失值替補方式？', font = f4)
@@ -40,8 +39,7 @@ class maketree(tk.Frame):
 		self.Q2_2 = tk.Radiobutton(self, text = '中位數', value = 2, font = f4)
 		self.Q2_3 = tk.Radiobutton(self, text = '眾數', value = 3 , font = f4)
 		self.Q2_4 = tk.Radiobutton(self, text = 'KNN Imputer', value = 4, font = f4)
-		self.Q2_check = tk.Button(self, text = '檢視', bg = 'gray', fg = 'black', font = f4)
-		#, command = self.check_missing
+		self.Q2_check = tk.Button(self, text = '檢視', bg = 'gray', fg = 'black', command = self.check_missing, font = f4)
 
 		#第三題：降維度
 		self.l_Q3 = tk.Label(self, text = '3. 是否要將資料降維處理(PCA)？', font = f4)
@@ -87,13 +85,13 @@ class maketree(tk.Frame):
 	def clickb_p(self):
 		file_name = self.readfile()
 		self.l_filecheck.configure(text = file_name)
-	'''
+		
 	#檢視離群值
 	def check_outlier(self):
 
 	#檢視缺失值
 	def check_missing(self):
-	'''
+
 
 	#點下「下一步」時，確認是否已上傳檔案、完成填寫，如有則跳下一部分；未達成則提醒
 	def click_con(self):
