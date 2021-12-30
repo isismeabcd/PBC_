@@ -27,25 +27,54 @@ class maketree(tk.Frame):
 		self.l_filecheck = tk.Label(self, text = '您尚未選擇檔案', fg = 'gray', font = f1)
 		self.l_setting = tk.Label(self, text = '資料處理設定', bg = 'gray', fg = 'black', font = f2)
 		
-		#第一題
+		#第一題：離群值
 		self.l_Q1 = tk.Label(self, text = '1. 是否要踢除離群值(outlier)？', font = f4)
-		self.Q1_1 = tk.Radiobutton(self, text = '是，以缺失值處理', value = 1)
-		self.Q1_2 = tk.Radiobutton(self, text = '否，保留離群值', value = 2)
+		self.Q1_1 = tk.Radiobutton(self, text = '是，以缺失值處理', value = 1 , font = f4)
+		self.Q1_2 = tk.Radiobutton(self, text = '否，保留離群值', value = 2, font = f4)
+		self.Q1_check = tk.Button(self, text = '檢視', bg = 'gray', fg = 'black', font = f4)
+		#, command = self.check_outlier
+
+		#第二題：缺失值
+		self.l_Q2 = tk.Label(self, text = '2. 缺失值替補方式？', font = f4)
+		self.Q2_1 = tk.Radiobutton(self, text = '平均值', value = 1 , font = f4)
+		self.Q2_2 = tk.Radiobutton(self, text = '中位數', value = 2, font = f4)
+		self.Q2_3 = tk.Radiobutton(self, text = '眾數', value = 3 , font = f4)
+		self.Q2_4 = tk.Radiobutton(self, text = 'KNN Imputer', value = 4, font = f4)
+		self.Q2_check = tk.Button(self, text = '檢視', bg = 'gray', fg = 'black', font = f4)
+		#, command = self.check_missing
+
+		#第三題：降維度
+		self.l_Q3 = tk.Label(self, text = '3. 是否要將資料降維處理(PCA)？', font = f4)
+		self.Q3_1 = tk.Radiobutton(self, text = '是', value = 1 , font = f4)
+		self.Q3_2 = tk.Radiobutton(self, text = '否', value = 2, font = f4)
 		
 		#輸完資料後開始進行處理
 		self.b_continue = tk.Button(self, text = '下一步', command = self.click_con, font = f2)
 
-		self.l_title.grid(row = 1, column = 1, columnspan = 20, sticky = tk.SW + tk.NE)
-		self.m_intro.grid(row = 2, column = 1, columnspan = 20, sticky = tk.W)
-		self.l_pickfile.grid(row = 4, column = 1, columnspan = 8, sticky = tk.S)
-		self.b_pickfile.grid(row = 4, column = 9, columnspan = 5, sticky = tk.S + tk.E + tk.W)
-		self.l_filecheck.grid(row = 4, column = 14, columnspan = 7, sticky = tk.S)
-		self.l_setting.grid(row = 5, column = 1, columnspan = 20, sticky = tk.SW + tk.NE)
+		self.l_title.grid(row = 1, column = 1, columnspan = 30, sticky = tk.SW + tk.NE)
+		self.m_intro.grid(row = 2, column = 1, columnspan = 30, sticky = tk.W)
+		self.l_pickfile.grid(row = 4, column = 1, columnspan = 10, sticky = tk.S)
+		self.b_pickfile.grid(row = 4, column = 11, columnspan = 5, sticky = tk.S + tk.E + tk.W)
+		self.l_filecheck.grid(row = 4, column = 16, columnspan = 30, sticky = tk.S)
+		self.l_setting.grid(row = 5, column = 1, columnspan = 30, sticky = tk.SW + tk.NE)
+
 		self.l_Q1.grid(row = 6, column = 1, columnspan = 10, sticky = tk.SW)
 		self.Q1_1.grid(row = 6, column = 11, columnspan = 5, sticky = tk.SW)
 		self.Q1_2.grid(row = 6, column = 16, columnspan = 5, sticky = tk.SW)
+		self.Q1_check.grid(row = 6, column = 21, columnspan = 10, sticky = tk.SE)
 
-		self.b_continue.grid(row = 8, column = 5, columnspan = 3, sticky = tk.SW + tk.NE)
+		self.l_Q2.grid(row = 7, rowspan = 2, column = 1, columnspan = 10, sticky = tk.W)
+		self.Q2_1.grid(row = 7, column = 11, columnspan = 5, sticky = tk.SW)
+		self.Q2_2.grid(row = 7, column = 16, columnspan = 5, sticky = tk.SW)
+		self.Q2_3.grid(row = 8, column = 11, columnspan = 5, sticky = tk.SW)
+		self.Q2_4.grid(row = 8, column = 16, columnspan = 5, sticky = tk.SW)
+		self.Q2_check.grid(row = 7, rowspan = 2, column = 21, columnspan = 10, sticky = tk.E)
+
+		self.l_Q3.grid(row = 9, column = 1, columnspan = 10, sticky = tk.SW)
+		self.Q3_1.grid(row = 9, column = 11, columnspan = 5, sticky = tk.SW)
+		self.Q3_2.grid(row = 9, column = 16, columnspan = 5, sticky = tk.SW)
+
+		self.b_continue.grid(row = 15, column = 5, columnspan = 3, sticky = tk.SW + tk.NE)
 
 	#讓使用者找檔案
 	def readfile(self):
@@ -58,13 +87,20 @@ class maketree(tk.Frame):
 	def clickb_p(self):
 		file_name = self.readfile()
 		self.l_filecheck.configure(text = file_name)
+	'''
+	#檢視離群值
+	def check_outlier(self):
+
+	#檢視缺失值
+	def check_missing(self):
+	'''
 
 	#點下「下一步」時，確認是否已上傳檔案、完成填寫，如有則跳下一部分；未達成則提醒
 	def click_con(self):
 		fliecheck = self.l_filecheck.cget('text')
 		if fliecheck == '您尚未選擇檔案':
 			messagebox.showerror('error', '您尚未選擇檔案')
-
+		if 
 			
 
 tree = maketree()
