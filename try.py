@@ -33,8 +33,7 @@ class maketree(tk.Frame):
 		self.l_Q1 = tk.Label(self, text = '1. 是否要踢除離群值(outlier)？', font = f4)
 		self.Q1_1 = tk.Radiobutton(self, text = '是，以缺失值處理', value = 1 , font = f4)
 		self.Q1_2 = tk.Radiobutton(self, text = '否，保留離群值', value = 2, font = f4)
-		self.Q1_check = tk.Button(self, text = '檢視', bg = 'gray', fg = 'black', font = f4)
-		#, command = self.check_outlier
+		self.Q1_check = tk.Button(self, text = '檢視', command = self.check_outlier, bg = 'gray', fg = 'black', font = f4)
 
 		#第二題：缺失值
 		self.l_Q2 = tk.Label(self, text = '2. 缺失值替補方式？', font = f4)
@@ -42,8 +41,7 @@ class maketree(tk.Frame):
 		self.Q2_2 = tk.Radiobutton(self, text = '中位數', value = 2, font = f4)
 		self.Q2_3 = tk.Radiobutton(self, text = '眾數', value = 3 , font = f4)
 		self.Q2_4 = tk.Radiobutton(self, text = 'KNN Imputer', value = 4, font = f4)
-		self.Q2_check = tk.Button(self, text = '檢視', bg = 'gray', fg = 'black', font = f4)
-		#, command = self.check_missing
+		self.Q2_check = tk.Button(self, text = '檢視', command = self.check_missing, bg = 'gray', fg = 'black', font = f4)
 
 		#第三題：降維度
 		self.l_Q3 = tk.Label(self, text = '3. 是否要將資料降維處理(PCA)？', font = f4)
@@ -90,20 +88,39 @@ class maketree(tk.Frame):
 	def clickb_p(self):
 		file_name = self.readfile()
 		self.l_filecheck.configure(text = file_name)
-	'''
+
 	#檢視離群值
 	def check_outlier(self):
 
 	#檢視缺失值
 	def check_missing(self):
-	'''
 
 	#點下「下一步」時，確認是否已上傳檔案、完成填寫，如有則跳下一部分；未達成則提醒
 	def click_con(self):
 		fliecheck = self.l_filecheck.cget('text')
 		if fliecheck == '您尚未選擇檔案':
 			messagebox.showerror('error', '您尚未選擇檔案')
-			
+		else:
+			run_tree = tk.Tk()
+			run_tree.title('Result')
+
+			#點擊「計算模型效能」，要產生東西的函數～
+			def click_perform(run_tree):
+
+			#點擊「生成決策樹」，要產生樹的函數～
+			def click_tree(run_tree):
+
+			b_performance = tk.Button(run_tree, text = '模型計算效能', command = click_perform(), bg = 'LightCoral', font = ('Arial', 32))
+			b_tree = tk.Button(run_tree, text = '生成決策樹', command = click_tree(), bg = 'LightCoral', font = ('Arial', 32))
+			c_performance = tk.Canvas(run_tree, width = 800, height = 200, bg = 'PowderBlue')
+			c_tree = tk.Canvas(run_tree, width = 800, height = 400, bg = 'PowderBlue')
+
+			b_performance.grid(row = 1, rowspan = 2, column = 2, sticky = tk.NE + tk.SW)
+			c_performance.grid(row = 3, column = 2, sticky = tk.NE + tk.SW)
+			b_tree.grid(row = 4, rowspan = 2, column = 2, sticky = tk.NE + tk.SW)
+			c_tree.grid(row = 6, column = 2, sticky = tk.NE + tk.SW)
+
+			run_tree.mainloop()
 
 tree = maketree()
 tree.master.title('The Decision Tree Tool')
