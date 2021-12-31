@@ -17,6 +17,7 @@ from IPython.display import Image, display
 from pydotplus import graph_from_dot_data
 from PIL import ImageTk
 from tkinter import Tk, Canvas
+from tkinter import ttk
 
 
 class maketree(tk.Frame):
@@ -50,7 +51,7 @@ class maketree(tk.Frame):
         self.l_Q1 = tk.Label(self, text = '1. 是否要踢除離群值(outlier)？', font = f4)
         self.Q1_1 = tk.Radiobutton(self, text = '是，以缺失值處理', variable = radioValue, value = 1 , font = f4)
         self.Q1_2 = tk.Radiobutton(self, text = '否，保留離群值', variable = radioValue, value = 2, font = f4)
-        self.Q1_check = tk.Button(self, text = '檢視', bg = 'gray', fg = 'black',command = self.check_outlier, font = f4)
+        self.Q1_check = tk.Button(self, text = '檢視', bg = 'gray', fg = 'black',font = f4,command=self.check_outlier)
         #第二題：缺失值
         self.l_Q2 = tk.Label(self, text = '2. 缺失值替補方式？', font = f4)
         self.Q2_1 = tk.Radiobutton(self, text = '平均值', variable = radioValue2, value = 1 , font = f4)
@@ -107,16 +108,54 @@ class maketree(tk.Frame):
             self.l_filecheck.configure(text = file_name)
 
 
-    #檢視outlier
+    #檢視離群值
     def check_outlier(self):
-        outlier=tk.Tk()
-        outlier.title('outlier')
-        view_outlier = tk.Canvas(outlier, width = 800, height = 1000, bg = 'PowderBlue')
-        view_outlier.grid(row = 1, rowspan = 20, column = 2, sticky = tk.NE + tk.SW)
-        dataset = pp.dataset(file=self.file_name)
+        dataset=pp.dataset(file=self.file_name)
         isna=dataset.isna().sum()
         isna_str=str(isna)
-        view_outlier.create_text(400, 300, text=isna_str, fill="black",font="Times 20 italic bold")
+        textlist=self.sp(isna_str)
+        txtname=[]
+        txtnum=[]
+        for i in range(int(len(textlist)/2)):
+            txtname.append(textlist[2*i]+'\n')
+        for i in range(int(len(textlist)/2)):
+            txtnum.append(textlist[2*i+1]+'\n')
+        #
+        outlier=tk.Tk()
+        outlier.title('outlier')
+        outlier.geometry('400x300')
+        #
+        wrapper1=tk.LabelFrame(outlier)
+        wrapper1.grid(row=5,rowspan=10,column=0,columnspan=10)
+        wrapper2=tk.LabelFrame(outlier)
+        wrapper2.grid(row=0,rowspan=1,column=0,columnspan=10)
+        #,width=500,height=600,sticky=tk.NE+tk.SW
+        view_outlier=tk.Canvas(wrapper1,bg='PowderBlue')
+        view_outlier.grid(row=10,column=0,columnspan=15,sticky=tk.NE+tk.SW)
+        #
+        gscrollbar=ttk.Scrollbar(wrapper1,orient='vertical',command=view_outlier.yview)
+        gscrollbar.grid(row=10,column=15,sticky=tk.S + tk.E + tk.N)
+        view_outlier.configure(yscrollcommand=gscrollbar.set)
+        view_outlier.bind('<Configure>',lambda e:view_outlier.configure(scrollregion=view_outlier.bbox('all')))
+        #
+        myframe=tk.Frame(view_outlier,bg='PowderBlue')
+        view_outlier.create_window((50,10),window=myframe,anchor='nw')
+        for i in range(len(txtnum)):
+            tk.Label(myframe,text=txtname[i],bg='PowderBlue').grid(row=i+1,column=0,columnspan=3,sticky=tk.NW)
+            tk.Label(myframe,text=txtnum[i],bg='PowderBlue').grid(row=i+1,column=2,columnspan=3,sticky=tk.NE)
+        outlier.mainloop()
+    #def strtoword(self,inputstr):
+    def sp(self,aa):
+        aaa=[]
+        aa=aa.split('  ')
+        for i in range(len(aa)):
+            aa[i]=aa[i].split('\n')
+        aa=[x for i in aa for x in i]
+        for i in range(len(aa)):
+            if aa[i]!="":
+                aaa.append(aa[i])
+        return aaa
+        
         
 
     #檢視缺失值
@@ -155,7 +194,7 @@ class maketree(tk.Frame):
                 self.c_tree.create_image(0,0,image=imagemain,anchor=tk.NW)
                 
     
-            b_performance = tk.Button(run_tree, text = '模型計算效能', bg = 'LightCoral', font = ('Arial', 32),command=click_perform)
+            b_performance = tk.Button(run_tree, text = '模型計算效能', bg = 'LightCoral', font = ('Arial', 32),command=lambda:click_perform)
             b_tree = tk.Button(run_tree, text = '生成決策樹', bg = 'LightCoral', font = ('Arial', 32),command=click_tree)  #,command=click_tree
             c_performance = tk.Canvas(run_tree, width = 800, height = 200, bg = 'PowderBlue')
             self.c_tree = tk.Canvas(run_tree, width = 800, height = 400, bg = 'PowderBlue')
