@@ -89,7 +89,10 @@ class maketree(tk.Frame):
     #事件處理函數，當點下「上傳檔案後」，呼叫找檔案的函數，並將文字改成檔案名稱
     def clickb_p(self):
         file_name = self.readfile()
-        self.l_filecheck.configure(text = file_name)        
+        file_name = str(file_name)
+        if file_name != '()':
+            self.l_filecheck.configure(text = file_name)
+
 
     #檢視離群值
     #def check_outlier(self):
