@@ -5,7 +5,19 @@ import PIL
 from tkinter import Tk
 from tkinter import messagebox
 from tkinter.filedialog import askopenfilename
-
+import os
+import PBC80.preprocessor as pp
+from PBC80.preprocessor import KBestSelector
+from PBC80.classification import DecisionTree
+from PBC80.performance import KFoldClassificationPerformance
+import PBC80.model_drawer as md
+from IPython.display import Image, display
+import pandas as pd
+from tkinter import constants
+from tkinter.simpledialog import *
+from PIL import Image, ImageTk
+import numpy as np
+import DecisionTree_Mushroom as DM
 
 class maketree(tk.Frame):
     def __init__(self):
@@ -38,7 +50,7 @@ class maketree(tk.Frame):
         self.l_Q1 = tk.Label(self, text = '1. 是否要踢除離群值(outlier)？', font = f4, height = 2)
         self.Q1_1 = tk.Radiobutton(self, text = '是，以缺失值處理', variable = radioValue, value = 1, font = f4, height = 2)
         self.Q1_2 = tk.Radiobutton(self, text = '否，保留離群值', variable = radioValue, value = 2, font = f4, height = 2)
-        self.Q1_check = tk.Button(self, text = '檢視', bg = 'gray', fg = 'black', font = f4, height = 1)
+        self.Q1_check = tk.Button(self, text = '檢視', bg = 'gray', fg = 'black', command = self.check_outlier, font = f4, height = 1)
         #第二題：缺失值
         self.l_Q2 = tk.Label(self, text = '2. 缺失值替補方式？', font = f4, height = 4)
         self.Q2_1 = tk.Radiobutton(self, text = '平均值', variable = radioValue2, value = 1 , font = f4, height = 1)
@@ -84,7 +96,7 @@ class maketree(tk.Frame):
     def readfile(self):
         root = Tk()
         root.withdraw()# we don't want a full GUI, so keep the root window from appearing
-        filename = askopenfilename(filetypes = [("txt files", "*.txt"), ("excel files", "*.csv"), ("excel files", "*.xlsx")])
+        filename = askopenfilename(filetypes = [("excel files", "*.csv"), ("excel files", "*.xlsx"), ("txt files", "*.txt")])
         root.destroy()
         return filename 
         #file_name是路徑，之後需要可以叫它
@@ -97,19 +109,47 @@ class maketree(tk.Frame):
             self.l_filecheck.configure(text = file_name)
 
 
-    #檢視離群值
-    #def check_outlier(self):
+    
+    def check_outlier(self):
+        out = tk.Toplevel()
+        out.title('Outlier')
+        File = self.l_filecheck.cget('text')
+        dataset = pp.dataset(file = File)
+        X = pp.decomposition(dataset, x_columns=[i for i in range(1, 18)])
+        for i, column in enumerate(X.columns):
+            data = X[column]
+            percent = str(round(self.outlier_percent(data), 2))
+            a = tk.Label(out, text = f'Outliers in "{column}": {percent}%', font = tkFont.Font(size = 16, family = 'Arial'))
+            a.grid(row = i + 1, columnspan = 30, sticky = tk.W)
+            #print(f'Outliers in "{column}": {percent}%')
+        out.mainloop()
+        
+    def outlier_percent(self, data):
+        Q1 = data.quantile(0.25)
+        Q3 = data.quantile(0.75)
+        IQR = Q3 - Q1
+        minimum = Q1 - (1.5 * IQR)
+        maximum = Q3 + (1.5 * IQR)
+        num_outliers =  np.sum((data < minimum) |(data > maximum))
+        num_total = data.count()
+        return (num_outliers/num_total)*100
+        
+        #out = tk.Toplevel()
+        #out.title('Outlier')
+        #tk.Label(out, text = '', font = f4, height = 2)
+
+
 
     #檢視缺失值
     #def check_missing(self):
 
     #點下「下一步」時，確認是否已上傳檔案、完成填寫，如有則跳下一部分；未達成則提醒
     def click_con(self):
-        fliecheck = self.l_filecheck.cget('text')
-        if fliecheck == '您尚未選擇檔案':
+        filecheck = self.l_filecheck.cget('text')
+        if filecheck == '您尚未選擇檔案':
             messagebox.showerror('error', '您尚未選擇檔案')
         else:
-            run_tree = tk.Tk()
+            run_tree = tk.Toplevel()
             run_tree.title('Result')
 
             #點擊「計算模型效能」，要產生東西的函數～
@@ -117,19 +157,47 @@ class maketree(tk.Frame):
 
             #點擊「生成決策樹」，要產生樹的函數～
             #def click_tree(run_tree):
-
-            b_performance = tk.Button(run_tree, text = '模型計算效能', bg = 'LightCoral', font = ('Arial', 32))
-            b_tree = tk.Button(run_tree, text = '生成決策樹', bg = 'LightCoral', font = ('Arial', 32))
-            c_performance = tk.Canvas(run_tree, width = 800, height = 200, bg = 'PowderBlue')
-            c_tree = tk.Canvas(run_tree, width = 800, height = 400, bg = 'PowderBlue')
+            b_performance = tk.Button(run_tree, text = '模型計算效能', bg = 'LightCoral', command = self.clickBtnLo, font = ('Arial', 32))
+            b_tree = tk.Button(run_tree, text = '生成決策樹', bg = 'LightCoral', command = self.click_tree, font = ('Arial', 32))
+            self.c_performance = tk.Canvas(run_tree, width = 800, height = 200, bg = 'PowderBlue')
+            #self.c_tree = tk.Canvas(run_tree, width = 800, height = 400, bg = 'PowderBlue')
 
             b_performance.grid(row = 1, rowspan = 2, column = 2, sticky = tk.NE + tk.SW)
-            c_performance.grid(row = 3, column = 2, sticky = tk.NE + tk.SW)
+            self.c_performance.grid(row = 3, column = 2, sticky = tk.NE + tk.SW)
             b_tree.grid(row = 4, rowspan = 2, column = 2, sticky = tk.NE + tk.SW)
-            c_tree.grid(row = 6, column = 2, sticky = tk.NE + tk.SW)
-
+            #self.c_tree.grid(row = 6, column = 2, sticky = tk.NE + tk.SW)
             run_tree.mainloop()
+    
+    def clickBtnLo(self):
+        f = self.l_filecheck.cget('text')
+        self.runmodel(f) 
+    
+    def click_tree(self):
+        photo = tk.Toplevel()
+        File = self.l_filecheck.cget('text')
+        DM.draw_picture(File)
+        img = Image.open('decision_tree_graphivz.png')
+        img2 = ImageTk.PhotoImage(img)
 
+        myimage = tk.Canvas(photo, width=img.size[0], height=img.size[1])
+        myimage.pack()
+        myimage.create_image(0,0, anchor=tk.NW, image=img2)
+        photo.mainloop()
+
+    def runmodel(self,f):
+        dataset = pp.dataset(file=f)
+        X, Y = pp.decomposition(dataset, x_columns=[i for i in range(1, 23)], y_columns=[0])
+        X = pp.onehot_encoder(X, columns=[i for i in range(22)], remove_trap=True)
+        Y, Y_mapping = pp.label_encoder(Y, mapping=True)
+        selector = KBestSelector(best_k="auto")
+        X = selector.fit(x_ary=X, y_ary=Y, verbose=True, sort=True).transform(x_ary=X)
+        X_train, X_test, Y_train, Y_test = pp.split_train_test(x_ary=X, y_ary=Y)
+        classifier = DecisionTree()
+        Y_pred = classifier.fit(X_train, Y_train).predict(X_test)
+        K = 10
+        kfp = KFoldClassificationPerformance(x_ary=X, y_ary=Y, classifier=classifier.classifier, k_fold=K)
+        out="{} Folds Mean Accuracy: {}\n{} Folds Mean Recall: {}\n{} Folds Mean Precision: {}\n{} Folds Mean F1-Score: {}" .format(K, kfp.accuracy(),K, kfp.recall(),K,kfp.precision(),K, kfp.f_score())
+        self.c_performance.create_text(400, 120, text=out, fill="black",font="Times 20 italic bold")
 tree = maketree()
 tree.master.title('The Decision Tree Tool')
 tree.mainloop()
