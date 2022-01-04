@@ -55,7 +55,7 @@ class maketree(tk.Frame):
         s=ttk.Style()
         s.configure('red.TSeparator',background='red')
         b=ttk.Separator(self,orient='horizontal',style='red.TSeparator').grid(row =9, column = 1, columnspan = 30, sticky = tk.SW + tk.NE)
-    #------------------------第一題：離群值
+    #------------------------第二題：離群值
         self.l_Q2 = tk.Label(self, text = '2. 是否要踢除離群值(outlier)？', font = f4)
         self.Q2_1 = tk.Radiobutton(self, text = '是，以缺失值處理', variable = radioValue, value = 1 , font = f4)
         self.Q2_2 = tk.Radiobutton(self, text = '否，保留離群值', variable = radioValue, value = 2, font = f4)
@@ -63,7 +63,7 @@ class maketree(tk.Frame):
         s=ttk.Style()
         s.configure('red.TSeparator',background='red')
         b=ttk.Separator(self,orient='horizontal',style='red.TSeparator').grid(row =13, column = 1, columnspan = 30, sticky = tk.SW + tk.NE)   
-    #------------------------第二題：缺失值
+    #------------------------第三題：缺失值
         self.knnboo=False
         self.l_Q3 = tk.Label(self, text = '3. 選擇缺失值替補方式 !', font = f4)
         self.Q3_1 = tk.Radiobutton(self, text = '無', variable = radioValue2, value = 1 , font = f4,command=lambda:self.knncheck(0))
@@ -74,12 +74,11 @@ class maketree(tk.Frame):
         s=ttk.Style()
         s.configure('red.TSeparator',background='red')
         b=ttk.Separator(self,orient='horizontal',style='red.TSeparator').grid(row =16, column = 1, columnspan = 30, sticky = tk.SW + tk.NE)   
-    #------------------------第三題：降維度
+    #------------------------第四題：降維度
         self.l_Q4 = tk.Label(self, text = '4. 是否要將資料降維處理(PCA)？', font = f4)
         self.Q4_1 = tk.Radiobutton(self, text = '是', variable = radioValue3, value = 1 , font = f4)
         self.Q4_2 = tk.Radiobutton(self, text = '否', variable = radioValue3, value = 2, font = f4)
-        #self.Q4_check = tk.Button(self, text = '檢視PCA降維結果', bg = 'gray', fg = 'black', font = f4,command=self.pca_click)
-    
+      
      #-----------------------輸完資料後開始進行處理
         self.b_continue = tk.Button(self, text = '下一步', command = self.click_con, font = f2)
         self.l_title.grid(row = 1, column = 1, columnspan = 30, sticky = tk.SW + tk.NE)
